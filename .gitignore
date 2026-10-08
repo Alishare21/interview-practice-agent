@@ -8,5 +8,7 @@ progress_log.jsonl
 profile.yaml
 *.attempt.json
 tests/.tmp/
+output/pdf/
+tmp/pdfs/
 __pycache__/
 node_modules/
