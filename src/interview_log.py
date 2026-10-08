@@ -123,7 +123,8 @@ def record(input_path: Path) -> dict:
     if not isinstance(raw, dict):
         raise ValueError("Record input must be a JSON object")
     allowed = {"session_id", "topic_id", "question_id", "difficulty", "status", "scores",
-               "hint_used", "feedback_summary", "answer", "corrects"}
+               "hint_used", "feedback_summary", "answer", "corrects", "question_text",
+               "ideal_points", "category"}
     extra = set(raw) - allowed
     if extra:
         raise ValueError(f"Unexpected input fields: {', '.join(sorted(extra))}")
@@ -135,13 +136,28 @@ def record(input_path: Path) -> dict:
     status = raw.get("status")
     if not isinstance(session_id, str) or not session_id.strip():
         raise ValueError("session_id is required")
-    if tid not in topics or qid not in questions or questions[qid][0] != tid:
+    custom = isinstance(tid, str) and tid.startswith("custom:")
+    if custom:
+        if not isinstance(qid, str) or not qid.startswith(tid + ":"):
+            raise ValueError("Custom question_id must belong to its topic")
+        if not isinstance(raw.get("question_text"), str) or not raw["question_text"].strip():
+            raise ValueError("Custom questions need question_text")
+        points = raw.get("ideal_points")
+        if not isinstance(points, list) or not 2 <= len(points) <= 8 or not all(
+                isinstance(point, str) and point.strip() for point in points):
+            raise ValueError("Custom questions need 2-8 ideal_points")
+        if raw.get("category") not in ("technical", "situational", "behavioral"):
+            raise ValueError("Custom questions need a valid category")
+        previous = [e for e in entries if e.get("question_id") == qid]
+        if previous and any(e.get("question_text") != raw["question_text"] for e in previous):
+            raise ValueError("A custom question_id cannot change its question text")
+    elif tid not in topics or qid not in questions or questions[qid][0] != tid:
         raise ValueError("question_id must belong to topic_id")
     if profile.get("topics") and tid not in profile["topics"]:
         raise ValueError("Topic is outside profile.yaml topics")
     if status not in ("scored", "skipped", "abandoned"):
         raise ValueError("status must be scored, skipped, or abandoned")
-    difficulty = raw.get("difficulty", topics[tid]["difficulty"])
+    difficulty = raw.get("difficulty", "medium" if custom else topics[tid]["difficulty"])
     if difficulty not in DIFFICULTIES:
         raise ValueError("Invalid difficulty")
     if type(raw.get("hint_used", False)) is not bool:
@@ -170,6 +186,9 @@ def record(input_path: Path) -> dict:
              "difficulty": difficulty, "attempt": attempt, "scores": scores if status == "scored" else None,
              "overall": score, "hint_used": raw.get("hint_used", False), "status": status,
              "feedback_summary": summary}
+    if custom:
+        entry.update({"question_text": raw["question_text"], "ideal_points": points,
+                      "category": raw["category"]})
     if correction:
         entry["corrects"] = correction
     if profile["store_answers"] and "answer" in raw:
@@ -323,11 +342,12 @@ def session_summary(session_id: str) -> dict:
               "strong": [], "developing": [], "needs_work": []}
     for entry in session_entries:
         question = question_map.get(entry.get("question_id"))
-        category = topic_map[question[0]].get("category") if question else None
+        category = topic_map[question[0]].get("category") if question else entry.get("category")
         review = {"topic_id": entry.get("topic_id"), "question_id": entry.get("question_id"),
                   "attempt": entry.get("attempt"), "status": entry.get("status"),
                   "feedback_summary": entry.get("feedback_summary", ""),
-                  "question": question[1]["text"] if question else None, "category": category}
+                  "question": question[1]["text"] if question else entry.get("question_text"),
+                  "category": category}
         if entry.get("status") == "scored" and isinstance(entry.get("scores"), dict):
             lowest = min(entry["scores"].values())
             relevance = entry["scores"]["relevance"]
