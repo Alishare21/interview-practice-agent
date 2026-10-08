@@ -23,9 +23,7 @@ Allow at most one follow-up probe for a vague answer. Score the answer plus its 
 
 ## Feedback and logging
 
-Give each scored answer feedback in about 150 words or less:
-
-`Score: X.X / 5 (Band)`; all five dimension scores; 1-2 answer-specific strengths; at most two ranked improvements; one concrete technique or rewrite; and a next action (next, retry, or end). Flag unverified technical claims. Do not show the next question until the current one is scored or skipped.
+Score and log each answer before moving on, then acknowledge it briefly without revealing detailed feedback or the score. The user wants scores, corrections, and wrong-answer explanations together in the final interview report. At session end, show each scored answer's `Score: X.X / 5 (Band)`, all five dimension scores, 1-2 answer-specific strengths, at most two ranked improvements, and one concrete technique or rewrite. Flag unverified technical claims. Do not show the next question until the current one is scored or skipped.
 
 For each attempt, prepare a JSON input file containing `session_id`, `topic_id`, `question_id`, `difficulty`, `status`, `scores` if scored, `hint_used`, and a short `feedback_summary`. For a custom question, also include `question_text`, the private `ideal_points` checklist, and `category`; these let the final report identify the question without storing the answer or résumé. Include `answer` only if `profile.yaml` has `store_answers: true`; otherwise do not pass full answer text to the logger. If the answer contains confidential employer details, remind the user to anonymize them; never record those details. Run `python src/interview_log.py record --input <file>`. The helper calculates `overall`, assigns timestamp and attempt number, appends one JSON line, and verifies the write. Confirm "Logged" only after it succeeds. If logging fails, say so plainly and give the feedback anyway. Remove temporary input files after the save or failed retry.
 
