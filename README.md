@@ -37,7 +37,7 @@ After the final question, the coach shows every question with its score and feed
 - At the start, the coach asks which topics the student is familiar with and invites an optional résumé.
 - It can create questions for a topic outside the starter bank, including questions based on skills or projects the student actually supplied.
 - Each custom question keeps its question text and assessment checklist in the practice log, so the final report can identify it. The résumé and full answer are not saved by default.
-- The same rubric and end-of-interview report apply to starter and custom questions. The report lists correct, partly correct, and incorrect answers, plus supported strengths, weak points, and a next exercise.
+- The same rubric and end-of-interview report apply to starter and custom questions. During the interview, answers are logged with only a brief acknowledgment; the report at the end provides scores, correct and incorrect answers, supported strengths, weak points, and a next exercise.
 - The functional suite now includes a custom-topic reporting and privacy check; all nine tests pass. Generated question quality still needs review during real practice.
 
 ## Verify
