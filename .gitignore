@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+AIS-OS/
+AGENTS.md
+audits/
+progress_log.jsonl
+profile.yaml
+*.attempt.json
+tests/.tmp/
+__pycache__/
+node_modules/
