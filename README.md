@@ -39,6 +39,7 @@ After the final question, the coach shows every question with its score and feed
 - Each custom question keeps its question text and assessment checklist in the practice log, so the final report can identify it. The résumé and full answer are not saved by default.
 - The same rubric and end-of-interview report apply to starter and custom questions. During the interview, answers are logged with only a brief acknowledgment; the report at the end provides scores, correct and incorrect answers, supported strengths, weak points, and a next exercise.
 - The functional suite now includes a custom-topic reporting and privacy check; all nine tests pass. Generated question quality still needs review during real practice.
+- The standard round stops after its planned questions so the student gets a focused report. They can choose another round afterward. Detailed feedback is held until the report, which explains why wrong answers missed the mark and shows a concise improved example.
 
 ## Verify
 
