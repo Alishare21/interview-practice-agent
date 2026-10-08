@@ -1,6 +1,6 @@
 # Interview Practice Agent
 
-A local interview practice coach for general software and data roles. It asks one question at a time, scores each answer with a fixed rubric, gives short feedback, and records attempts so progress can be reviewed. It is a practice partner, not a real interviewer or a hiring predictor.
+A general interview practice coach. It first asks which topics the student knows and invites an optional résumé, then asks questions on those topics and relevant résumé experience. It scores each answer with a fixed rubric, gives short feedback, and records attempts so progress can be reviewed. It is a practice partner, not a real interviewer or a hiring predictor.
 
 ## Set up
 
@@ -13,7 +13,7 @@ python src/interview_log.py init
 
 The `init` command creates a private `profile.yaml` from [profile.example.yaml](profile.example.yaml) and an empty `progress_log.jsonl`. It reports what it created and does not overwrite either file. Both local files are excluded from Git.
 
-Open this folder in Codex and say **“start”** or **“start sql-analytics”**. A session defaults to five questions and adaptive difficulty. The commands are `hint`, `skip`, `retry`, `model answer`, `progress`, `topics`, `end`, and `delete log`.
+Open this folder in Codex and say **“start”**. Name any topic you want to practise, such as business analysis, design, finance, or software. You can also share a résumé; the coach uses it to tailor questions without saving its text in the practice log. If you give no topic, the bundled starter questions are available. A session defaults to five questions and adaptive difficulty. The commands are `hint`, `skip`, `retry`, `model answer`, `progress`, `topics`, `end`, and `delete log`.
 
 The [interview-practice skill](.agents/skills/interview-practice/SKILL.md) defines the coach's behavior. [Interview agent specification](interview_agent_spec.md) preserves the supplied rules. This is a Codex skill with a Python scoring and logging helper; it is not a standalone web app.
 
@@ -21,7 +21,7 @@ The [interview-practice skill](.agents/skills/interview-practice/SKILL.md) defin
 
 | File | Purpose |
 |---|---|
-| [topics.yaml](topics.yaml) | Twelve starter questions across software, SQL, data quality, statistics, and behavioral topics |
+| [topics.yaml](topics.yaml) | Twelve optional starter questions across software, SQL, data quality, statistics, and behavioral topics |
 | [rubric.md](rubric.md) | Fixed five-dimension weighted scoring rubric |
 | [profile.example.yaml](profile.example.yaml) | Default local profile; full answer storage is off |
 | [src/interview_log.py](src/interview_log.py) | Question selection, weighted totals, append verification, summaries, export, and deletion |
