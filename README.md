@@ -32,6 +32,14 @@ The question bank and rubric are read-only during practice. The user's full answ
 
 After the final question, the coach shows every question with its score and feedback, groups correct, partly correct, and incorrect technical answers, and summarizes demonstrated knowledge and weak points. The labels follow the relevance rubric score and can be reviewed against the actual answer. Behavioral answers are described as strong, developing, or needing work.
 
+## Recent update: any interview topic
+
+- At the start, the coach asks which topics the student is familiar with and invites an optional résumé.
+- It can create questions for a topic outside the starter bank, including questions based on skills or projects the student actually supplied.
+- Each custom question keeps its question text and assessment checklist in the practice log, so the final report can identify it. The résumé and full answer are not saved by default.
+- The same rubric and end-of-interview report apply to starter and custom questions. The report lists correct, partly correct, and incorrect answers, plus supported strengths, weak points, and a next exercise.
+- The functional suite now includes a custom-topic reporting and privacy check; all nine tests pass. Generated question quality still needs review during real practice.
+
 ## Verify
 
 ```bash
