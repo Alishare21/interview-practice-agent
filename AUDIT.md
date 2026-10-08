@@ -5,7 +5,7 @@
 
 ## Result
 
-The implemented workflow passes its focused functional checks. A real interview answer has not yet been scored: the first live question was asked and a hint was given, then the session was paused for this audit. The real `progress_log.jsonl` remains empty. All scored examples below are fictional test answers.
+The helper workflow passed its focused automated checks. After that audit snapshot, a six-question live practice run was completed and its report was rendered as a four-page PDF and visually inspected. Its six local entries and generated report are private and excluded from the public repository. Test examples below are fictional; the later live results are kept locally only.
 
 | Check | Evidence | Result |
 |---|---|---|
@@ -22,8 +22,9 @@ The implemented workflow passes its focused functional checks. A real interview 
 | Question-level review | A weak sample retains the specific wrong step and exposes its lowest rubric dimensions in the session summary | Pass |
 | End-of-interview report | Strong and incorrect sample answers appear in separate groups with the question, specific feedback, and score-based weak points | Pass |
 | Custom topic | A generated business-analysis question is scored and included in the wrong-answer report without storing the answer or résumé | Pass |
+| PDF report | A six-question session generated a four-page professional PDF with score tables, question reviews, explanations, and example answers; rendered pages were visually checked | Pass |
 | Automated suite | `python -m unittest discover -s tests -v`: nine tests passed | Pass |
-| Real practice log | Zero entries and zero bytes after verification | Unchanged |
+| Practice log privacy | Live session answers are omitted by default; the log is excluded from the public repository | Pass |
 
 For the incorrect-method scenario, the fictional response was: “Sort the list and return the positions of two numbers that look closest.” It does not establish the target sum and can lose the original indices. The low relevance and depth scores are based on those defects. A wrong method is scored honestly; it is logged as `skipped` only when the candidate chooses to skip.
 
@@ -37,8 +38,8 @@ The current intake accepts any candidate topic and an optional résumé. The sta
 
 - The Python helper verifies arithmetic, file behavior, selection, and summaries. The conversational coach still judges the five rubric dimensions against the candidate's actual answer; that judgment needs review with real practice answers over time.
 - No hiring outcome or company-specific interview pattern is inferred from these tests.
-- The public repository excludes the local AIS-OS installation, personal profile, real attempt log, and private audit history. The published coach runs in Codex; the Python helper alone is not a conversational app.
+- The public repository excludes the local AIS-OS installation, personal profile, real attempt log, generated student PDF reports, and private audit history. The published coach runs in Codex; the Python helper alone is not a conversational app.
 
 ## Next live check
 
-Resume the paused first question or start a new session, answer one question, and check that feedback cites the answer, shows all five dimension scores, and appends exactly one line to the real log. Record any demonstrated mismatch as a regression test before changing the workflow.
+Continue with another custom topic or use the starter bank. Confirm each completed session creates a separate professional PDF and that student reports remain excluded from the public repository.
