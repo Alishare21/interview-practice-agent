@@ -166,6 +166,20 @@ class InterviewLogTests(unittest.TestCase):
         self.assertEqual(report["incorrect_questions"][0]["question"], "Debug an empty list.")
         self.assertIn("depth", report["weak_points"])
 
+    def test_custom_topic_question_is_logged_and_reviewed_without_resume(self):
+        data = self.scored_input(
+            {"relevance": 2, "structure": 3, "depth": 2, "communication": 4, "impact": 2},
+            question="custom:business-analysis:1", topic="custom:business-analysis",
+            question_text="How would you resolve conflicting stakeholder requirements?",
+            ideal_points=["Clarify goals", "Compare options", "Record a decision"],
+            category="situational", answer="Private answer text")
+        entry = app.record(self.write_input(data))
+        self.assertNotIn("answer", entry)
+        self.assertNotIn("resume", entry)
+        review = app.session_summary("session-1")["incorrect_questions"][0]
+        self.assertEqual(review["question"], data["question_text"])
+        self.assertEqual(review["category"], "situational")
+
 
 if __name__ == "__main__":
     unittest.main()
