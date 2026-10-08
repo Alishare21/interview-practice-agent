@@ -1,0 +1,112 @@
+# Starter questions for general software and data interview practice.
+# This file is read-only during sessions. Edit it deliberately between sessions.
+topics:
+  - id: software-debugging
+    category: technical
+    difficulty: easy
+    questions:
+      - id: sd-001
+        text: "A function returns the wrong result only for an empty list. How would you debug and fix it?"
+        ideal_points:
+          - Reproduce the failure with a minimal empty-list test
+          - Inspect assumptions about indexing, initialization, and return values
+          - Explain a specific fix and why it handles the empty case
+          - Add a regression test and check nearby edge cases
+      - id: sd-002
+        text: "An API endpoint has become slow after a recent change. How would you investigate it?"
+        ideal_points:
+          - Establish the symptom and a baseline before changing code
+          - Compare recent changes and identify where time is spent
+          - Check database queries, external calls, and request volume as relevant
+          - Verify the fix with measurements and a regression guard
+  - id: software-algorithms
+    category: technical
+    difficulty: medium
+    questions:
+      - id: sa-001
+        text: "Given a list of integers and a target, return the indices of two distinct elements that sum to the target. Explain your approach and complexity."
+        ideal_points:
+          - Clarify whether a solution is guaranteed and how duplicates are handled
+          - Use a seen-value map or another correct approach
+          - Never reuse the same element twice
+          - State time and space complexity and test edge cases
+      - id: sa-002
+        text: "How would you find the first non-repeating character in a string? Explain complexity and edge cases."
+        ideal_points:
+          - Count occurrences then preserve original order when searching
+          - Handle empty strings and all-repeating strings
+          - Explain character handling assumptions if relevant
+          - State time and space complexity
+  - id: sql-analytics
+    category: technical
+    difficulty: medium
+    questions:
+      - id: sql-001
+        text: "A table orders(order_id, customer_id, order_date, amount) may contain multiple orders per customer. Write SQL to return each customer's total amount and order count for 2025, including only customers with at least two orders."
+        ideal_points:
+          - Filter the date range before grouping
+          - Group by customer_id
+          - Use SUM(amount) and COUNT(*) or COUNT(order_id) appropriately
+          - Use HAVING for the minimum order count
+          - State how null amounts or duplicate rows would affect interpretation
+      - id: sql-002
+        text: "What is the difference between WHERE and HAVING? Give an example using grouped sales data."
+        ideal_points:
+          - WHERE filters rows before grouping
+          - HAVING filters grouped results
+          - Example correctly places row and aggregate conditions
+          - Mention relevant null or grouping assumptions if needed
+  - id: data-quality
+    category: situational
+    difficulty: easy
+    questions:
+      - id: dq-001
+        text: "You receive a CSV for a sales analysis. What checks would you run before trusting its totals?"
+        ideal_points:
+          - Verify delimiter, encoding, row count, and column types
+          - Check missing, duplicate, invalid, and inconsistent values
+          - Confirm what each row represents and whether amounts can be added
+          - Reconcile key totals with the source and document assumptions
+      - id: dq-002
+        text: "A dashboard's revenue total suddenly jumps 40%. How would you determine whether this is a real change or a data issue?"
+        ideal_points:
+          - Check definitions, time window, and source freshness
+          - Break down the change by segment and compare record counts
+          - Investigate duplicates, joins, backfills, currency, and unit changes
+          - Verify against an independent source before making a claim
+  - id: statistics-reasoning
+    category: technical
+    difficulty: hard
+    questions:
+      - id: sr-001
+        text: "An A/B test shows a higher conversion rate in variant B. What would you check before recommending a rollout?"
+        ideal_points:
+          - Check randomization, sample sizes, and exposure definitions
+          - Quantify uncertainty and distinguish statistical from practical impact
+          - Examine guardrail metrics, segments, and data quality
+          - Avoid a causal claim if the test design or logging is compromised
+      - id: sr-002
+        text: "Explain how a correlation between discount size and sales could be misleading."
+        ideal_points:
+          - Distinguish association from causation
+          - Identify plausible confounding or reverse causation
+          - Consider selection effects, seasonality, and product mix
+          - Propose a better comparison or experiment
+  - id: behavioral-projects
+    category: behavioral
+    difficulty: medium
+    questions:
+      - id: bp-001
+        text: "Tell me about a project where you found and fixed a difficult problem."
+        ideal_points:
+          - Specific situation and task
+          - Own actions and reasoning
+          - Result with evidence when available
+          - Reflection or lesson learned
+      - id: bp-002
+        text: "Tell me about a time you disagreed with a teammate or classmate about an approach."
+        ideal_points:
+          - Specific context and disagreement
+          - Respectful communication and own actions
+          - Outcome without inventing a measurable result
+          - Reflection on what changed or was learned
