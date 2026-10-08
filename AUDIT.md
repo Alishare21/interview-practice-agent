@@ -21,7 +21,8 @@ The implemented workflow passes its focused functional checks. A real interview 
 | Export and deletion | Export matches the log; deletion refuses anything other than explicit `YES` | Pass |
 | Question-level review | A weak sample retains the specific wrong step and exposes its lowest rubric dimensions in the session summary | Pass |
 | End-of-interview report | Strong and incorrect sample answers appear in separate groups with the question, specific feedback, and score-based weak points | Pass |
-| Automated suite | `python -m unittest discover -s tests -v`: eight tests passed | Pass |
+| Custom topic | A generated business-analysis question is scored and included in the wrong-answer report without storing the answer or résumé | Pass |
+| Automated suite | `python -m unittest discover -s tests -v`: nine tests passed | Pass |
 | Real practice log | Zero entries and zero bytes after verification | Unchanged |
 
 For the incorrect-method scenario, the fictional response was: “Sort the list and return the positions of two numbers that look closest.” It does not establish the target sum and can lose the original indices. The low relevance and depth scores are based on those defects. A wrong method is scored honestly; it is logged as `skipped` only when the candidate chooses to skip.
@@ -31,6 +32,8 @@ For the incorrect-method scenario, the fictional response was: “Sort the list 
 The first version required local `profile.yaml` and `progress_log.jsonl` but excluded them from Git, so a public clone would be incomplete. `profile.example.yaml` and the `init` command now create both private files without overwriting existing practice data. The fresh-clone test covers that setup and one full sample attempt. The session summary now exposes question-by-question feedback, rubric-based answer groups, and weak dimensions, so a candidate can see exactly what to fix after the interview. The skill generates this report automatically after the requested number of questions.
 
 ## Limits
+
+The current intake accepts any candidate topic and an optional résumé. The starter bank remains available as a fallback. Generated questions and their checklists are saved with the attempt so the report can name them; résumé text and full answers stay out of the log by default. The custom-topic path is tested with a business-analysis scenario, but the quality of generated questions across arbitrary subjects still requires human review.
 
 - The Python helper verifies arithmetic, file behavior, selection, and summaries. The conversational coach still judges the five rubric dimensions against the candidate's actual answer; that judgment needs review with real practice answers over time.
 - No hiring outcome or company-specific interview pattern is inferred from these tests.
