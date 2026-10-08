@@ -1,7 +1,7 @@
 # Copy to profile.yaml with `python src/interview_log.py init`.
-target_role: general software/data interviews
+target_role: general interviews
 level: null
 goals:
-  - Improve software and data interview answers through practice
+  - Improve interview answers through practice on my chosen topics
 topics: []  # Empty means all topics in topics.yaml are available.
 store_answers: false
