@@ -124,6 +124,13 @@ def new_session_id() -> str:
     return f"{today}-{max(ordinals, default=0) + 1:02d}"
 
 
+def planned_question_count(requested_count: int, topic_count: int, starter_mode: bool) -> int:
+    """Keep a changed count exact; the default custom-topic plan covers every topic twice."""
+    if starter_mode or requested_count != 10:
+        return requested_count
+    return max(10, 2 * topic_count)
+
+
 def adaptive_level(session_id: str, requested: str) -> str:
     if requested != "adaptive":
         return requested
@@ -375,6 +382,7 @@ def dashboard() -> None:
             use_starter = st.checkbox("I have no topic preference; use the starter question bank")
             resume_file = st.file_uploader("Optional résumé (TXT or PDF)", type=["txt", "pdf"])
             question_count = st.number_input("Number of questions", min_value=2, max_value=80, value=10, step=1)
+            st.caption("The default is 10 and may grow to cover at least two questions per topic, including résumé topics. Change the number to set an exact session length.")
             difficulty = st.selectbox("Difficulty", ["adaptive", "easy", "medium", "hard"], index=0)
             submitted = st.form_submit_button("Start interview", type="primary")
         if submitted:
@@ -385,7 +393,6 @@ def dashboard() -> None:
             if len(topics) > 40:
                 st.error("Select no more than 40 topics per interview so the question limit can cover each twice.")
                 return
-            planned_count = max(int(question_count), 10, 2 * len(topics)) if not use_starter else int(question_count)
             resume = ""
             if resume_file:
                 raw = resume_file.getvalue()
@@ -407,6 +414,7 @@ def dashboard() -> None:
                 if len(topics) > 40:
                     st.error("The selected topics plus résumé areas exceed 40. Narrow the topic list and try again.")
                     return
+            planned_count = planned_question_count(int(question_count), len(topics), use_starter)
             session = {"session_id": new_session_id(), "topics": topics, "starter_mode": use_starter,
                        "resume": resume, "count": planned_count, "difficulty": difficulty,
                        "question_history": [], "topic_counts": [], "current": None, "current_hint_used": False,
