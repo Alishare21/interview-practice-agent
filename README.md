@@ -24,7 +24,7 @@ python -m pip install -r requirements.txt
 streamlit run web_app.py
 ```
 
-The live AI workflow needs an OpenAI API key and an app password. Set `OPENAI_API_KEY` and `APP_PASSWORD` in your environment for local use. The app sends topics, optional résumé text, and interview answers to the configured OpenAI model to generate questions and feedback. The chat transcript and report are held in the active browser session; structured scores and brief feedback are appended to the project log. Full answers are excluded from that log unless `profile.yaml` opts in. On a hosted demo, do not enter sensitive résumé or interview information. Never commit an API key, app password, or a student's report to GitHub.
+The live AI workflow needs either a Groq API key or an OpenAI API key, plus an app password. Groq is preferred when `GROQ_API_KEY` is configured; its free plan is rate-limited and uses a different model from OpenAI. Set `GROQ_API_KEY` and `APP_PASSWORD` in your environment for local use, or set `OPENAI_API_KEY` to use OpenAI instead. The app sends topics, optional résumé text, and interview answers to the configured AI provider to generate questions and feedback. The chat transcript and report are held in the active browser session; structured scores and brief feedback are appended to the project log. Full answers are excluded from that log unless `profile.yaml` opts in. On a hosted demo, do not enter sensitive résumé or interview information. Never commit an API key, app password, or a student's report to GitHub.
 
 The hosted app uses a shared demo password, not individual student accounts. Everyone with that password shares the app's progress log and can use its export and delete controls. The host's local files may be reset when the app restarts, so download each PDF when it appears.
 
@@ -35,7 +35,7 @@ The app is prepared for [Streamlit Community Cloud](https://share.streamlit.io/)
 1. Push this project to a GitHub repository you administer.
 2. Sign in to Streamlit Community Cloud with GitHub and choose **Create app**.
 3. Select the repository and branch, and set the app file to `web_app.py`.
-4. In **Advanced settings → Secrets**, add `OPENAI_API_KEY = "your-key"` and `APP_PASSWORD = "a-long-random-password"`, then save. The key must be created by the account owner in the OpenAI API platform. Keep both values in hosting secrets; do not put them in GitHub or paste the API key into chat.
+4. In **Advanced settings → Secrets**, add `GROQ_API_KEY = "your-key"` and `APP_PASSWORD = "a-long-random-password"`, then save. Create the Groq key in the GroqCloud Console. The account owner must be 18 or older. Groq's free tier has rate limits, and Groq may temporarily retain request content for reliability or abuse investigations. Keep both values in hosting secrets; do not put them in GitHub or paste the API key into chat. To use OpenAI instead, configure `OPENAI_API_KEY` in place of `GROQ_API_KEY`.
 5. Deploy and share the generated `https://…streamlit.app` URL and the app password with your teacher.
 
 Community Cloud requires access to the GitHub repository and installs packages from `requirements.txt`. The host may pause an idle demo, so open the link and allow it to wake before presenting. See [Streamlit's deployment guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app) and [secrets guide](https://docs.streamlit.io/deploy/concepts/secrets).

@@ -23,7 +23,7 @@ The helper workflow passed its focused automated checks. After that audit snapsh
 | End-of-interview report | Strong and incorrect sample answers appear in separate groups with the question, specific feedback, and score-based weak points | Pass |
 | Custom topic | A generated business-analysis question is scored and included in the wrong-answer report without storing the answer or résumé | Pass |
 | PDF report | A six-question session generated a four-page professional PDF with score tables, question reviews, explanations, and example answers; rendered pages were visually checked | Pass |
-| Automated suite | `python -m unittest discover -s tests -v`: thirteen tests passed | Pass |
+| Automated suite | `python -m unittest discover -s tests -v`: sixteen tests passed, including provider selection | Pass |
 | Practice log privacy | Live session answers are omitted by default; the log is excluded from the public repository | Pass |
 | Web startup | Streamlit AppTest starts the app, shows the missing-secret message without an unhandled exception, and reaches the login form with test-only environment values | Pass |
 | Chat transcript | Clean Git checkout launches the chat flow, records a skip, advances to the next question, and finishes a two-question test round | Pass |
@@ -31,8 +31,9 @@ The helper workflow passed its focused automated checks. After that audit snapsh
 | PDF content | Extracted test PDF text contains the answer, five rubric scores, correction, example answer, strengths, and next-practice guidance | Pass |
 | Scoring integration | Isolated mocked AI response flows through the website scorer, computes 3.6/5 with the project helper, appends one scored attempt, and omits the full answer | Pass |
 | API quota error UX | Exhausted-credit responses show a short billing explanation; raw provider details are not displayed | Pass |
-| Resume topic coverage | Optional résumé skill extraction adds explicit topics to the round; capped at 40 total topics so the required two-per-topic plan stays within 80 questions | Code-reviewed; live model response still requires the owner's API key |
-| Hosted deployment | No API key, shared password, or hosting account credentials are available in this workspace; no deployment URL was created | Blocked on owner secrets and hosting setup |
+| Provider configuration | Groq API is preferred when `GROQ_API_KEY` is present; OpenAI remains a fallback. The Groq endpoint, model selection, and no-key state are unit-tested | Pass; no live provider call without owner key |
+| Resume topic coverage | Optional résumé skill extraction adds explicit topics to the round; capped at 40 total topics so the required two-per-topic plan stays within 80 questions | Code-reviewed; live model response requires a configured provider key |
+| Hosted deployment | Public Streamlit URL exists; Groq still needs to be configured in the hosting secrets before live AI can be checked | Waiting for owner key and secrets update |
 
 For the incorrect-method scenario, the fictional response was: “Sort the list and return the positions of two numbers that look closest.” It does not establish the target sum and can lose the original indices. The low relevance and depth scores are based on those defects. A wrong method is scored honestly; it is logged as `skipped` only when the candidate chooses to skip.
 
@@ -50,4 +51,4 @@ The current intake accepts any candidate topic and an optional résumé. The sta
 
 ## Next live check
 
-The code is ready for the configured Streamlit Community Cloud deployment path. Before a public URL can be tested, the repository owner must set a real API key and shared demo password in hosting secrets, select the repository and `web_app.py` entry point, and deploy. No live model scoring run or hosted deployment has been claimed in this audit.
+The code is deployed to the existing Streamlit Community Cloud app. To enable free-tier AI, the owner must add `GROQ_API_KEY` in the app secrets and restart or wait for the app to reload. No live Groq model scoring run has been claimed in this audit.
