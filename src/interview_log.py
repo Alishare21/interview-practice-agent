@@ -274,16 +274,25 @@ def progress() -> dict:
     corrected = {e.get("corrects") for e in entries if e.get("corrects")}
     entries = [e for e in entries if e.get("timestamp") not in corrected]
     scored = [e for e in entries if e.get("status") == "scored" and isinstance(e.get("overall"), (int, float))]
+    custom_topic_ids = sorted({e.get("topic_id") for e in entries
+                               if isinstance(e.get("topic_id"), str) and e["topic_id"].startswith("custom:")})
     if not scored:
+        by_topic = {tid: {"attempts": 0, "average": None, "trend": "Too few data points"} for tid in topics}
+        by_topic.update({tid: {"attempts": 0, "average": None, "trend": "Too few data points"}
+                         for tid in custom_topic_ids})
         return {"scored_attempts": 0, "questions_practiced": 0, "sessions": 0,
                 "overall_average": None, "trend": "Need 10 completed sessions for a five-versus-five trend.",
-                "topics": {tid: {"attempts": 0, "average": None, "trend": "Too few data points"} for tid in topics},
+                "topics": by_topic,
                 "dimension_averages": {}, "strongest_dimension": None, "weakest_dimension": None,
                 "streak_days": 0, "recommended_focus": "Complete a first practice question."}
     def avg(values):
         return round(sum(values) / len(values), 2) if values else None
     by_topic = {}
     for tid in topics:
+        values = [e["overall"] for e in scored if e.get("topic_id") == tid]
+        by_topic[tid] = {"attempts": len(values), "average": avg(values),
+                         "trend": "Too few data points" if len(values) < 3 else "Enough for a basic comparison"}
+    for tid in custom_topic_ids:
         values = [e["overall"] for e in scored if e.get("topic_id") == tid]
         by_topic[tid] = {"attempts": len(values), "average": avg(values),
                          "trend": "Too few data points" if len(values) < 3 else "Enough for a basic comparison"}

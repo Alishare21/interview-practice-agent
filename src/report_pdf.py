@@ -134,6 +134,8 @@ def _question_block(number: int, review: dict, note: dict):
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
     ]))
     elements.extend([label, Spacer(1, 6)])
+    if note.get("candidate_answer"):
+        elements.append(_p("Candidate answer: " + note["candidate_answer"]))
     scores = review.get("scores")
     if isinstance(scores, dict):
         dims = ["relevance", "structure", "depth", "communication", "impact"]
@@ -148,8 +150,12 @@ def _question_block(number: int, review: dict, note: dict):
         ]))
         elements.extend([score_table, Spacer(1, 6)])
     elements.append(_p("What your answer showed: " + (note.get("what_showed") or review.get("feedback_summary", "No detailed feedback was recorded."))))
+    if note.get("what_to_correct"):
+        elements.append(_p("What to correct: " + note["what_to_correct"]))
     if note.get("why_it_matters"):
         elements.append(_p("Why this matters: " + note["why_it_matters"]))
+    if note.get("uncertainty"):
+        elements.append(_p("Accuracy note: " + note["uncertainty"]))
     if note.get("improved_answer"):
         elements.append(_p("Example of a stronger answer: " + note["improved_answer"]))
     return KeepTogether(elements)
@@ -223,7 +229,9 @@ def create_report(session_id: str, analysis: dict | None = None, output: Path | 
 
     story.append(_p("Question-by-question review", "SectionHead"))
     for number, review in enumerate(reviews, 1):
-        story.append(_question_block(number, review, notes.get(review.get("question_id"), {})))
+        note_key = f"{review.get('question_id')}:attempt-{review.get('attempt', 1)}"
+        note = notes.get(note_key, notes.get(review.get("question_id"), {}))
+        story.append(_question_block(number, review, note))
         story.append(Spacer(1, 12))
 
     doc = SimpleDocTemplate(str(output), pagesize=letter, rightMargin=.75 * inch,

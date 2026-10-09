@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
-from src import interview_log as app
+from src import interview_log as app, report_pdf
 
 
 TOPICS = """topics:
@@ -179,6 +179,44 @@ class InterviewLogTests(unittest.TestCase):
         review = app.session_summary("session-1")["incorrect_questions"][0]
         self.assertEqual(review["question"], data["question_text"])
         self.assertEqual(review["category"], "situational")
+
+    def test_progress_tracks_custom_topic_averages(self):
+        app.record(self.write_input(self.scored_input(
+            {key: 4 for key in app.DIMENSIONS}, topic="custom:machine-learning",
+            question="custom:machine-learning:1",
+            question_text="How would you validate a classifier?",
+            ideal_points=["Choose metrics", "Check held-out data"],
+            category="technical")))
+        custom = app.progress()["topics"]["custom:machine-learning"]
+        self.assertEqual(custom["attempts"], 1)
+        self.assertEqual(custom["average"], 4.0)
+        self.assertEqual(custom["trend"], "Too few data points")
+
+    def test_pdf_contains_answer_rubric_correction_and_next_steps(self):
+        entry = app.record(self.write_input(self.scored_input(
+            {"relevance": 2, "structure": 3, "depth": 2, "communication": 4, "impact": 2},
+            question="sql-001", topic="sql-analytics")))
+        output = self.root / "output" / "review.pdf"
+        analysis = {
+            "overview": "Practice review based on one answer.",
+            "demonstrated_knowledge": ["SQL grouping"],
+            "strengths": ["Clear explanation"],
+            "weak_points": ["Explain aggregation"],
+            "recommended_focus": "Practice GROUP BY with an example.",
+            "reviews": {f"sql-001:attempt-{entry['attempt']}": {
+                "candidate_answer": "It groups rows before aggregation.",
+                "what_showed": "Recognized grouping as a step before aggregation.",
+                "what_to_correct": "Explain that GROUP BY forms groups by shared column values.",
+                "why_it_matters": "This makes the aggregate result interpretable.",
+                "improved_answer": "GROUP BY collects rows sharing a value, then aggregates each group.",
+            }},
+        }
+        report_pdf.create_report("session-1", analysis, output)
+        from pypdf import PdfReader
+        text = "\n".join(page.extract_text() or "" for page in PdfReader(output).pages)
+        for expected in ("Practice review", "It groups rows", "GROUP BY forms groups",
+                         "GROUP BY collects rows", "Explain aggregation", "Practice GROUP BY"):
+            self.assertIn(expected, text)
 
 
 if __name__ == "__main__":

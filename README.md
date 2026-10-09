@@ -13,9 +13,32 @@ python src/interview_log.py init
 
 The `init` command creates a private `profile.yaml` from [profile.example.yaml](profile.example.yaml) and an empty `progress_log.jsonl`. It reports what it created and does not overwrite either file. Both local files are excluded from Git.
 
-Open this folder in Codex and say **“start”**. Name any topic you want to practise, such as business analysis, design, finance, or software. You can also share a résumé; the coach uses it to tailor questions without saving its text in the practice log. If you give no topic, the bundled starter questions are available. A session defaults to the greater of ten questions or two questions per selected topic, including additional topics supported by the résumé. It rotates questions across all selected topics and uses adaptive difficulty. You can choose a different count. The commands are `hint`, `skip`, `retry`, `model answer`, `progress`, `topics`, `end`, and `delete log`.
+Open this folder in Codex and say **“start”**. Name any topic you want to practise, such as business analysis, design, finance, or software. You can also share a résumé; the coach uses it to tailor questions and add explicit skill areas to the question plan without saving résumé text in the practice log. If you give no topic, the bundled starter questions are available. A session defaults to the greater of ten questions or two questions per selected or résumé-derived topic. It rotates across topics and uses adaptive difficulty. You can choose a different count. The commands are `hint`, `skip`, `retry`, `model answer`, `progress`, `topics`, `end`, and `delete log`.
 
-The [interview-practice skill](.agents/skills/interview-practice/SKILL.md) defines the coach's behavior. [Interview agent specification](interview_agent_spec.md) preserves the supplied rules. This is a Codex skill with a Python scoring and logging helper; it is not a standalone web app.
+The [interview-practice skill](.agents/skills/interview-practice/SKILL.md) defines the local coach's behavior. [Interview agent specification](interview_agent_spec.md) preserves the supplied rules. `web_app.py` is a standalone web version for live interviews, AI scoring, and downloadable PDF reviews. The local Codex workflow remains available for private practice.
+
+## Run the web app locally
+
+```bash
+python -m pip install -r requirements.txt
+streamlit run web_app.py
+```
+
+The live AI workflow needs an OpenAI API key and an app password. Set `OPENAI_API_KEY` and `APP_PASSWORD` in your environment for local use. The app sends topics, optional résumé text, and interview answers to the configured OpenAI model to generate questions and feedback. The chat transcript and report are held in the active browser session; structured scores and brief feedback are appended to the project log. Full answers are excluded from that log unless `profile.yaml` opts in. On a hosted demo, do not enter sensitive résumé or interview information. Never commit an API key, app password, or a student's report to GitHub.
+
+The hosted app uses a shared demo password, not individual student accounts. Everyone with that password shares the app's progress log and can use its export and delete controls. The host's local files may be reset when the app restarts, so download each PDF when it appears.
+
+## Publish a live demo URL
+
+The app is prepared for [Streamlit Community Cloud](https://share.streamlit.io/):
+
+1. Push this project to a GitHub repository you administer.
+2. Sign in to Streamlit Community Cloud with GitHub and choose **Create app**.
+3. Select the repository and branch, and set the app file to `web_app.py`.
+4. In **Advanced settings → Secrets**, add `OPENAI_API_KEY = "your-key"` and `APP_PASSWORD = "a-long-random-password"`, then save. The key must be created by the account owner in the OpenAI API platform. Keep both values in hosting secrets; do not put them in GitHub or paste the API key into chat.
+5. Deploy and share the generated `https://…streamlit.app` URL and the app password with your teacher.
+
+Community Cloud requires access to the GitHub repository and installs packages from `requirements.txt`. The host may pause an idle demo, so open the link and allow it to wake before presenting. See [Streamlit's deployment guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app) and [secrets guide](https://docs.streamlit.io/deploy/concepts/secrets).
 
 ## Files
 
@@ -31,7 +54,7 @@ The [interview-practice skill](.agents/skills/interview-practice/SKILL.md) defin
 
 The question bank and rubric are read-only during practice. The user's full answers are stored only when they explicitly change `store_answers` to true in their local profile. The log is append-only except for a confirmed deletion request.
 
-After the final question, the coach generates a professional PDF review in `output/pdf/`. The full review is delivered in PDF format and includes each question and score, what was answered correctly or needs correction, plain-language explanations, example improved answers, topics to revisit, and the student's supported strengths and weak points. The conversation gives the student the PDF location.
+After the final question, the web coach offers a downloadable professional PDF review; the local workflow saves it in `output/pdf/`. The full review includes each question and candidate answer, each attempt's result and five rubric scores, what was correct or needs correction, plain-language explanations, example improved answers, demonstrated knowledge, strengths, weak points, topics to revisit, and a focused next-practice exercise. During the interview, the website behaves as a chat: answer in the chat box and type `hint`, `skip`, `retry`, `model answer`, `next`, `progress`, `topics`, `end`, or `help` as needed. Detailed scoring is saved for the final report.
 
 ## Recent update: any interview topic
 
@@ -39,9 +62,10 @@ After the final question, the coach generates a professional PDF review in `outp
 - It can create questions for a topic outside the starter bank, including questions based on skills or projects the student actually supplied.
 - Each custom question keeps its question text and assessment checklist in the practice log, so the final report can identify it. The résumé and full answer are not saved by default.
 - The same rubric and end-of-interview report apply to starter and custom questions. During the interview, answers are logged with only a brief acknowledgment; the report at the end provides scores, correct and incorrect answers, supported strengths, weak points, and a next exercise.
-- The functional suite now includes a custom-topic reporting and privacy check; all nine tests pass. Generated question quality still needs review during real practice.
+- The functional suite includes custom-topic reporting and privacy checks. Generated question quality still needs review during real practice.
 - The standard round stops after its planned questions so the student gets a focused report. They can choose another round afterward. Detailed feedback is held until the report, which explains why wrong answers missed the mark and shows a concise improved example.
 - `src/report_pdf.py` creates the formatted PDF from the session log and coach-written notes. Each completed interview gets a separate PDF named for its session. Student reports are saved locally and excluded from Git so personal practice details do not become public. Reports contain learning feedback, not a hiring prediction.
+- The web app includes the same chat-style interview controls and creates a downloadable report at completion. Its shared demo password is an access gate, not individual accounts; do not use the public demo for sensitive personal data.
 
 ## Verify
 
