@@ -29,6 +29,7 @@ The helper workflow passed its focused automated checks. After that audit snapsh
 | Chat transcript | Clean Git checkout launches the chat flow, records a skip, advances to the next question, and finishes a two-question test round | Pass |
 | Automatic PDF delivery | Final skipped sample answer immediately creates a PDF download button in the clean checkout | Pass |
 | PDF content | Extracted test PDF text contains the answer, five rubric scores, correction, example answer, strengths, and next-practice guidance | Pass |
+| Scoring integration | Isolated mocked AI response flows through the website scorer, computes 3.6/5 with the project helper, appends one scored attempt, and omits the full answer | Pass |
 | Resume topic coverage | Optional résumé skill extraction adds explicit topics to the round; capped at 40 total topics so the required two-per-topic plan stays within 80 questions | Code-reviewed; live model response still requires the owner's API key |
 | Hosted deployment | No API key, shared password, or hosting account credentials are available in this workspace; no deployment URL was created | Blocked on owner secrets and hosting setup |
 
