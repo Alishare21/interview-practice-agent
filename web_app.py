@@ -46,6 +46,22 @@ def model_json(client: OpenAI, prompt: str) -> dict:
     return json.loads(response.output_text)
 
 
+def friendly_error(exc: Exception) -> str:
+    """Translate provider failures without exposing raw response details in the UI."""
+    message = str(exc).lower()
+    code = str(getattr(exc, "code", "") or "").lower()
+    if "credit_balance_exhausted" in message or "credit_balance_exhausted" in code or "no credits remaining" in message:
+        return ("OpenAI API billing has no credits remaining, so the AI couldn't continue. "
+                "The site is online. Add API credits in the OpenAI API billing settings, wait a few minutes, and try again. "
+                "ChatGPT subscriptions and API billing are separate.")
+    if "insufficient_quota" in message or "insufficient_quota" in code:
+        return ("The OpenAI API usage limit or credit balance has been reached. Check the API account's billing and usage limits, "
+                "then try again.")
+    if getattr(exc, "status_code", None) == 429:
+        return "The AI service is temporarily rate-limiting requests. Wait briefly, then try again."
+    return "The AI service couldn't complete that step. Check the app configuration and try again."
+
+
 def slug(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-") or "topic"
 
@@ -317,7 +333,7 @@ def dashboard() -> None:
                 try:
                     topics.extend(resume_topics(resume, topics))
                 except Exception as exc:
-                    st.error(f"I couldn't identify interview topics from that résumé. No interview was started. ({exc})")
+                    st.error(f"I couldn't identify interview topics from that résumé. No interview was started. {friendly_error(exc)}")
                     return
                 if len(topics) > 40:
                     st.error("The selected topics plus résumé areas exceed 40. Narrow the topic list and try again.")
@@ -337,7 +353,7 @@ def dashboard() -> None:
                 st.session_state.interview = session
                 st.rerun()
             except Exception as exc:
-                st.error(f"Could not start the interview. Check the site configuration and try again. ({exc})")
+                st.error(f"Could not start the interview. {friendly_error(exc)}")
 
 
 def save_attempt(session: dict, answer: str) -> dict:
@@ -532,9 +548,9 @@ def render_interview(session: dict) -> None:
             try:
                 finish_session(session)
             except Exception as exc:
-                session["messages"].append({"role": "assistant", "content": f"Your final response was saved, but I couldn’t finish the PDF yet. Type `end` to retry report generation. ({exc})"})
+                session["messages"].append({"role": "assistant", "content": f"Your final response was saved, but I couldn’t finish the PDF yet. Type `end` to retry report generation. {friendly_error(exc)}"})
     except Exception as exc:
-        session["messages"].append({"role": "assistant", "content": f"I couldn’t complete that step, so it has not been marked as saved. Please try again. ({exc})"})
+        session["messages"].append({"role": "assistant", "content": f"I couldn’t complete that step. Please try again. {friendly_error(exc)}"})
     st.rerun()
 def main() -> None:
     st.title("🎙️ Interview Practice Coach")

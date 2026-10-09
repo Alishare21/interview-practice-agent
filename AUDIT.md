@@ -23,13 +23,14 @@ The helper workflow passed its focused automated checks. After that audit snapsh
 | End-of-interview report | Strong and incorrect sample answers appear in separate groups with the question, specific feedback, and score-based weak points | Pass |
 | Custom topic | A generated business-analysis question is scored and included in the wrong-answer report without storing the answer or résumé | Pass |
 | PDF report | A six-question session generated a four-page professional PDF with score tables, question reviews, explanations, and example answers; rendered pages were visually checked | Pass |
-| Automated suite | `python -m unittest discover -s tests -v`: eleven tests passed | Pass |
+| Automated suite | `python -m unittest discover -s tests -v`: thirteen tests passed | Pass |
 | Practice log privacy | Live session answers are omitted by default; the log is excluded from the public repository | Pass |
 | Web startup | Streamlit AppTest starts the app, shows the missing-secret message without an unhandled exception, and reaches the login form with test-only environment values | Pass |
 | Chat transcript | Clean Git checkout launches the chat flow, records a skip, advances to the next question, and finishes a two-question test round | Pass |
 | Automatic PDF delivery | Final skipped sample answer immediately creates a PDF download button in the clean checkout | Pass |
 | PDF content | Extracted test PDF text contains the answer, five rubric scores, correction, example answer, strengths, and next-practice guidance | Pass |
 | Scoring integration | Isolated mocked AI response flows through the website scorer, computes 3.6/5 with the project helper, appends one scored attempt, and omits the full answer | Pass |
+| API quota error UX | Exhausted-credit responses show a short billing explanation; raw provider details are not displayed | Pass |
 | Resume topic coverage | Optional résumé skill extraction adds explicit topics to the round; capped at 40 total topics so the required two-per-topic plan stays within 80 questions | Code-reviewed; live model response still requires the owner's API key |
 | Hosted deployment | No API key, shared password, or hosting account credentials are available in this workspace; no deployment URL was created | Blocked on owner secrets and hosting setup |
 
