@@ -180,6 +180,19 @@ class InterviewLogTests(unittest.TestCase):
         self.assertEqual(review["question"], data["question_text"])
         self.assertEqual(review["category"], "situational")
 
+    def test_same_custom_topic_can_have_different_first_questions_in_new_sessions(self):
+        scores = {key: 4 for key in app.DIMENSIONS}
+        for session_id, question_id, question_text in (
+            ("session-1", "custom:python:session-1:1", "Explain shallow copies."),
+            ("session-2", "custom:python:session-2:1", "Explain deep copies."),
+        ):
+            data = self.scored_input(
+                scores, session_id=session_id, question=question_id, topic="custom:python",
+                question_text=question_text, ideal_points=["Explain behavior", "Give an example"],
+                category="technical")
+            entry = app.record(self.write_input(data))
+            self.assertEqual(entry["question_id"], question_id)
+
     def test_progress_tracks_custom_topic_averages(self):
         app.record(self.write_input(self.scored_input(
             {key: 4 for key in app.DIMENSIONS}, topic="custom:machine-learning",

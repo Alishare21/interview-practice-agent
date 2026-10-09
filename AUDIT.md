@@ -23,7 +23,7 @@ The helper workflow passed its focused automated checks. After that audit snapsh
 | End-of-interview report | Strong and incorrect sample answers appear in separate groups with the question, specific feedback, and score-based weak points | Pass |
 | Custom topic | A generated business-analysis question is scored and included in the wrong-answer report without storing the answer or résumé | Pass |
 | PDF report | A six-question session generated a four-page professional PDF with score tables, question reviews, explanations, and example answers; rendered pages were visually checked | Pass |
-| Automated suite | `python -m unittest discover -s tests -v`: twenty-three tests passed, including provider selection, strict score-schema output, error guidance, and exact question-count selection | Pass |
+| Automated suite | `python -m unittest discover -s tests -v`: twenty-seven tests passed, including provider selection, strict score-schema output, error guidance, exact question-count selection, and session-unique custom question IDs | Pass |
 | Question count | A chosen count of two stays at two; the default ten-question plan still expands to cover two questions per topic | Pass |
 | Practice log privacy | Live session answers are omitted by default; the log is excluded from the public repository | Pass |
 | Web startup | Streamlit AppTest starts the app, shows the missing-secret message without an unhandled exception, and reaches the login form with test-only environment values | Pass |

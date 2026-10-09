@@ -32,6 +32,11 @@ class WebErrorTests(unittest.TestCase):
         self.assertIn("HTTP 400", message)
         self.assertNotIn("private request details", message)
 
+    def test_custom_question_collision_has_recovery_guidance(self):
+        message = friendly_error(ValueError("A custom question_id cannot change its question text"))
+        self.assertIn("wasn’t recorded", message)
+        self.assertIn("Retry the answer", message)
+
 
 if __name__ == "__main__":
     unittest.main()

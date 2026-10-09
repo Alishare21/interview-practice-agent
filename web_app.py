@@ -109,6 +109,8 @@ def friendly_error(exc: Exception) -> str:
         return "The AI returned a response in an unreadable format. Try submitting the answer again."
     if isinstance(exc, ValueError) and any(term in message for term in ("scorer", "checklist", "question generator")):
         return "The AI returned an unexpected score or question format. Try again; if it repeats, share the error with the app owner."
+    if isinstance(exc, ValueError) and "custom question_id cannot change its question text" in message:
+        return "This question conflicted with an earlier session entry, so your answer wasn’t recorded. Retry the answer; if it repeats, share the error with the app owner."
     return "The AI service couldn't complete that step. Check the app configuration and try again."
 
 
@@ -122,6 +124,22 @@ def new_session_id() -> str:
     ordinals = [int(item.rsplit("-", 1)[1]) for item in used
                 if item.startswith(today + "-") and item.rsplit("-", 1)[1].isdigit()]
     return f"{today}-{max(ordinals, default=0) + 1:02d}"
+
+
+def custom_question_id(topic_id: str, session_id: str, ordinal: int) -> str:
+    """Give a generated question a stable identity unique across practice sessions."""
+    return f"{topic_id}:{session_id}:{ordinal}"
+
+
+def ensure_session_scoped_question_id(session: dict) -> str:
+    """Upgrade an older in-progress custom question before appending it to the log."""
+    question = session["current"]
+    topic_id = question["topic_id"]
+    expected_prefix = f"{topic_id}:{session['session_id']}:"
+    if question["custom"] and not question["question_id"].startswith(expected_prefix):
+        ordinal = len(session.get("question_history", [])) + 1
+        question["question_id"] = custom_question_id(topic_id, session["session_id"], ordinal)
+    return question["question_id"]
 
 
 def planned_question_count(requested_count: int, topic_count: int, starter_mode: bool) -> int:
@@ -198,7 +216,8 @@ Return JSON only with: topic (string), question (string), category (technical, s
         result["category"] = "situational"
     ordinal = len(session["question_history"]) + 1
     topic_id = "custom:" + slug(topic)
-    return {"topic": topic, "topic_id": topic_id, "question_id": f"{topic_id}:{ordinal}",
+    return {"topic": topic, "topic_id": topic_id,
+            "question_id": custom_question_id(topic_id, session["session_id"], ordinal),
             "difficulty": target_level, "category": result.get("category", "situational"),
             "question": result["question"], "ideal_points": result["ideal_points"],
             "hint": result.get("hint", "Start by explaining your reasoning, then give a concrete example."),
@@ -435,6 +454,7 @@ def dashboard() -> None:
 
 def save_attempt(session: dict, answer: str) -> dict:
     question = session["current"]
+    ensure_session_scoped_question_id(session)
     review = score_answer(session, answer)
     status = review.get("assessment", "incorrect")
     if question["category"] == "behavioral":
