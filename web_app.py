@@ -5,6 +5,7 @@ from __future__ import annotations
 import hmac
 import io
 import json
+import logging
 import os
 import re
 import subprocess
@@ -21,6 +22,7 @@ from src import interview_log, report_pdf
 
 
 ROOT = Path(__file__).resolve().parent
+LOGGER = logging.getLogger(__name__)
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
@@ -55,12 +57,24 @@ def model_json(prompt: str) -> dict:
     if configured is None:
         raise RuntimeError("No AI provider is configured.")
     client, model, _provider = configured
-    response = client.responses.create(
-        model=model,
-        input=prompt,
-        text={"format": {"type": "json_object"}},
-    )
-    return json.loads(response.output_text)
+    try:
+        response = client.responses.create(
+            model=model,
+            input=prompt,
+            text={"format": {"type": "json_object"}},
+        )
+    except Exception as exc:
+        LOGGER.warning(
+            "AI request failed: provider=%s model=%s exception_type=%s status=%s code=%s request_id=%s",
+            _provider, model, type(exc).__name__, getattr(exc, "status_code", None),
+            getattr(exc, "code", None), getattr(exc, "request_id", None),
+        )
+        raise
+    try:
+        return json.loads(response.output_text)
+    except json.JSONDecodeError:
+        LOGGER.warning("AI response was not valid JSON: provider=%s model=%s", _provider, model)
+        raise
 
 
 def friendly_error(exc: Exception) -> str:
@@ -74,8 +88,19 @@ def friendly_error(exc: Exception) -> str:
     if "insufficient_quota" in message or "insufficient_quota" in code:
         return ("The OpenAI API usage limit or credit balance has been reached. Check the API account's billing and usage limits, "
                 "then try again.")
-    if getattr(exc, "status_code", None) == 429:
+    status = getattr(exc, "status_code", None)
+    if status == 401:
+        return "The AI provider rejected its API key. Check the provider key in Streamlit Secrets and try again."
+    if status == 403:
+        return "The AI provider denied this request. Check that the account and selected model are enabled."
+    if status == 400:
+        return "The AI provider rejected the request format (HTTP 400). The app logs have more diagnostic details."
+    if status == 429:
         return "The AI service is temporarily rate-limiting requests. Wait briefly, then try again."
+    if isinstance(exc, json.JSONDecodeError):
+        return "The AI returned a response in an unreadable format. Try submitting the answer again."
+    if isinstance(exc, ValueError) and any(term in message for term in ("scorer", "checklist", "question generator")):
+        return "The AI returned an unexpected score or question format. Try again; if it repeats, share the error with the app owner."
     return "The AI service couldn't complete that step. Check the app configuration and try again."
 
 
@@ -567,6 +592,10 @@ def render_interview(session: dict) -> None:
             except Exception as exc:
                 session["messages"].append({"role": "assistant", "content": f"Your final response was saved, but I couldn’t finish the PDF yet. Type `end` to retry report generation. {friendly_error(exc)}"})
     except Exception as exc:
+        LOGGER.warning(
+            "Interview step failed: exception_type=%s status=%s code=%s",
+            type(exc).__name__, getattr(exc, "status_code", None), getattr(exc, "code", None),
+        )
         session["messages"].append({"role": "assistant", "content": f"I couldn’t complete that step. Please try again. {friendly_error(exc)}"})
     st.rerun()
 def main() -> None:

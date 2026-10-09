@@ -16,6 +16,22 @@ class WebErrorTests(unittest.TestCase):
         self.assertIn("couldn't complete that step", message)
         self.assertNotIn("secret response payload", message)
 
+    def test_invalid_provider_key_has_actionable_message(self):
+        class UnauthorizedError(Exception):
+            status_code = 401
+
+        message = friendly_error(UnauthorizedError("secret response payload"))
+        self.assertIn("rejected its API key", message)
+        self.assertNotIn("secret response payload", message)
+
+    def test_bad_provider_request_exposes_status_without_raw_body(self):
+        class BadRequestError(Exception):
+            status_code = 400
+
+        message = friendly_error(BadRequestError("private request details"))
+        self.assertIn("HTTP 400", message)
+        self.assertNotIn("private request details", message)
+
 
 if __name__ == "__main__":
     unittest.main()
