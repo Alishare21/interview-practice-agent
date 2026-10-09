@@ -52,16 +52,24 @@ def ai_client() -> tuple[OpenAI, str, str] | None:
     return None
 
 
-def model_json(prompt: str) -> dict:
+def model_json(prompt: str, schema: dict | None = None) -> dict:
     configured = ai_client()
     if configured is None:
         raise RuntimeError("No AI provider is configured.")
     client, model, _provider = configured
+    output_format = {"type": "json_object"}
+    if schema is not None:
+        output_format = {
+            "type": "json_schema",
+            "name": "interview_score",
+            "strict": True,
+            "schema": schema,
+        }
     try:
         response = client.responses.create(
             model=model,
             input=prompt,
-            text={"format": {"type": "json_object"}},
+            text={"format": output_format},
         )
     except Exception as exc:
         LOGGER.warning(
@@ -233,7 +241,26 @@ Question: {question['question']}
 Ideal points: {json.dumps(question['ideal_points'], ensure_ascii=False)}
 Candidate answer: {answer}
 Give whole-number scores 1-5 for exactly these dimensions: relevance, structure, depth, communication, impact. The fixed weights are relevance 30%, structure 25%, depth 25%, communication 10%, impact 10%. Return JSON only with scores (object containing those five keys), assessment (correct, partly_correct, incorrect; for behavioral use strong, developing, needs_work), what_showed (1-2 specific strengths referencing the answer), missing_or_wrong (at most two ranked improvements), why_it_matters, improved_answer (concise example grounded in the checklist; do not imply the student said it), knowledge_shown (list of only concepts evidenced), uncertainty (empty string or a specific caveat). Do not calculate an overall score."""
-    result = model_json(prompt)
+    result = model_json(prompt, schema={
+        "type": "object",
+        "properties": {
+            "scores": {
+                "type": "object",
+                "properties": {key: {"type": "integer", "enum": [1, 2, 3, 4, 5]} for key in DIMENSIONS},
+                "required": list(DIMENSIONS),
+                "additionalProperties": False,
+            },
+            "assessment": {"type": "string", "enum": ["correct", "partly_correct", "incorrect", "strong", "developing", "needs_work"]},
+            "what_showed": {"type": "string"},
+            "missing_or_wrong": {"type": "string"},
+            "why_it_matters": {"type": "string"},
+            "improved_answer": {"type": "string"},
+            "knowledge_shown": {"type": "array", "items": {"type": "string"}},
+            "uncertainty": {"type": "string"},
+        },
+        "required": ["scores", "assessment", "what_showed", "missing_or_wrong", "why_it_matters", "improved_answer", "knowledge_shown", "uncertainty"],
+        "additionalProperties": False,
+    })
     scores = result.get("scores")
     if not isinstance(scores, dict) or set(scores) != set(DIMENSIONS):
         raise ValueError("Scorer did not return all five required rubric dimensions.")
